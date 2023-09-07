@@ -20,7 +20,10 @@ func AllInterfaces() []string {
 }
 
 // ChooseInterface chooses which interface to watch
-func ChooseInterface(input string) {}
+func ChooseInterface(input string) string {
+	var choosen string
+	return choosen
+}
 
 // WatchAll watches all interfaces
 func WatchAll(input string) {}

@@ -1,6 +1,13 @@
 package ips
 
-import "regexp"
+import (
+	"log"
+	"regexp"
+
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/layers"
+	"github.com/google/gopacket/pcap"
+)
 
 var (
 	classAPrivate, classBPrivate, classCPrivate *regexp.Regexp
@@ -13,8 +20,38 @@ func init() {
 }
 
 // CheckIPClass checks the IP class read from the chosen interface
-func CheckIPClass(input string) {
-	// First get the packet
-	// Read its IP
-	// check Ip class
+func ReadPacket(input string) {
+	// 1.0 First get the packet
+	if handle, err := pcap.OpenLive(input, 1600, true, pcap.BlockForever); err != nil {
+		log.Println(err)
+	} else if err := handle.SetBPFFilter("tcp and port 80"); err != nil { // optional
+		panic(err)
+	} else {
+		packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+		for packet := range packetSource.Packets() {
+			ipLayer := packet.Layer(layers.LayerTypeIPv4)
+			ipPacket, _ := ipLayer.(*layers.IPv4)
+
+			// 2.0 check ip class
+			if matchIP(ipPacket.SrcIP.String()) == true {
+				log.Println("======> Private IP read")
+			} else {
+				log.Println("======> Public IP read")
+			}
+
+		}
+	}
+
+}
+
+func matchIP(ip string) bool {
+	classAMatch := classAPrivate.MatchString(ip)
+	classBMatch := classBPrivate.MatchString(ip)
+	classCMatch := classCPrivate.MatchString(ip)
+
+	if classAMatch == true || classBMatch == true || classCMatch == true {
+		return true
+	}
+
+	return false
 }
