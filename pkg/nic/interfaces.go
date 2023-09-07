@@ -1,6 +1,7 @@
 package nic
 
 import (
+	"fmt"
 	"log"
 	"net"
 )
@@ -20,10 +21,19 @@ func AllInterfaces() []string {
 }
 
 // ChooseInterface chooses which interface to watch
-func ChooseInterface(input string) string {
-	var choosen string
+func ChooseInterface(input []string) string {
+	fmt.Println("Enter the number of the interface you would like to watch")
+	for i, names := range input {
+		fmt.Printf("%d for %s \n", i, names)
+	}
+
+	var picked int
+	fmt.Scanf("%d", &picked)
+	choosen := input[picked]
 	return choosen
 }
 
 // WatchAll watches all interfaces
-func WatchAll(input string) {}
+func WatchAll(input string) {
+	fmt.Println("Check all")
+}

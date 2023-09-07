@@ -8,19 +8,17 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"inpacketv2.1/pkg/ips"
 	"inpacketv2.1/pkg/nic"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "inpacketv2.1",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Listen to interfaces in your computer",
+	Long: `We listen to any or all interfaces in your computer
+	and checks if the packet passing throuth the NIC is 
+	from a public or private network.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -37,6 +35,19 @@ var allInterface = &cobra.Command{
 	},
 }
 
+// selectOne watches the choosen interface
+var selectOne = &cobra.Command{
+	Use:     "select",
+	Aliases: []string{"s"},
+	Short:   "Watches the choosen interface",
+	Run: func(cmd *cobra.Command, args []string) {
+		allInterfaces := nic.AllInterfaces()
+		chosen := nic.ChooseInterface(allInterfaces)
+		fmt.Println(chosen, " has been chosen")
+		ips.ReadPacket(chosen)
+	},
+}
+
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
@@ -48,4 +59,5 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(allInterface)
+	rootCmd.AddCommand(selectOne)
 }
